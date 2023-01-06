@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode== REQUEST_CODE && resultCode == Activity.RESULT_OK){
             val userMap = data?.getSerializableExtra(EXTRA_USER_MAP) as UserMap
-            Log.i("onActivityResult","${userMap.title}")
+            Log.i("onActivityResult",userMap.title)
         }
             super.onActivityResult(requestCode, resultCode, data)
     }
