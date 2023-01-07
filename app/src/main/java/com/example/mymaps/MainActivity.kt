@@ -1,16 +1,23 @@
 package com.example.mymaps
 
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AlertDialog.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mymaps.models.Place
 import com.example.mymaps.models.UserMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.FieldPosition
 const val EXTRA_USER_MAP = "EXTRA_USER_MAP"
@@ -20,7 +27,8 @@ private const val TAG = "MainActivity"
 private const val REQUEST_CODE = 1234
 private lateinit var fabCreateMap: FloatingActionButton
 class MainActivity : AppCompatActivity() {
-
+    private lateinit var userMaps : MutableList<UserMap>
+    private lateinit var mapAdapter: MapsAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -29,8 +37,8 @@ class MainActivity : AppCompatActivity() {
 //        Set Layout Manager on the recycler view
         rvMaps.layoutManager = LinearLayoutManager(this)
 //        set adapter
-        val userMaps = generateSampleData()
-        rvMaps.adapter = MapsAdapter(this, userMaps, object : MapsAdapter.OnClickListener{
+        userMaps = generateSampleData().toMutableList()
+        mapAdapter = MapsAdapter(this, userMaps, object : MapsAdapter.OnClickListener{
             override fun onItemCLick(position: Int) {
                 Log.i(TAG,"onItemCLick $position")
                 val intent = Intent(this@MainActivity,DisplayMapActivity::class.java)
@@ -39,22 +47,46 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
-
+        rvMaps.adapter = mapAdapter
         fabCreateMap.setOnClickListener {
 //            Toast.makeText(this,"Clicked FAB",Toast.LENGTH_SHORT).show()
 //            caller https://medium.com/realm/startactivityforresult-is-deprecated-82888d149f5d
-            val intent = Intent(this@MainActivity,CreateMapActivity::class.java)
-            intent.putExtra(EXTRA_MAP_TITLE,"new map name")
-            startActivityForResult(intent, REQUEST_CODE)
+            showAlertDialog()
         }
-
-
     }
+    private fun showAlertDialog() {
+        val mapFormView = LayoutInflater.from(this).inflate(R.layout.dialog_create_map, null)
+        val dialog =
+            Builder(this)
+                .setTitle("Map Title")
+                .setView(mapFormView)
+                .setNegativeButton("Cancel",null)
+                .setPositiveButton("OK",null)
+                .show()
 
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+            val title = mapFormView.findViewById<EditText>(R.id.etTitleSave).text.toString()
+
+
+            if(title.trim().isEmpty() ){
+                Toast.makeText(this,"Both Fields must be filled",Toast.LENGTH_SHORT)
+                return@setOnClickListener
+            }
+
+//            Navigate to Create Map Activity
+            val intent = Intent(this@MainActivity,CreateMapActivity::class.java)
+            intent.putExtra(EXTRA_MAP_TITLE,title)
+            startActivityForResult(intent, REQUEST_CODE)
+            dialog.dismiss()
+
+        }
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode== REQUEST_CODE && resultCode == Activity.RESULT_OK){
             val userMap = data?.getSerializableExtra(EXTRA_USER_MAP) as UserMap
             Log.i("onActivityResult",userMap.title)
+            userMaps.add(userMap)
+            mapAdapter.notifyItemInserted(userMaps.size-1)
         }
             super.onActivityResult(requestCode, resultCode, data)
     }

@@ -84,17 +84,15 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
             showAlertDialog(latLng)
 
         }
-//        // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
-//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val newDelhi = LatLng(29.123573253255866, 77.1893176674071)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newDelhi,5f))
     }
 
     private fun showAlertDialog(latLng: LatLng) {
         val placeFormView = LayoutInflater.from(this).inflate(R.layout.dialog_create_place, null)
         val dialog =
             AlertDialog.Builder(this)
-                .setTitle("Create a Market")
+                .setTitle("Create a Marker")
                 .setView(placeFormView)
                 .setNegativeButton("Cancel",null)
                 .setPositiveButton("OK",null)
@@ -115,7 +113,5 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
             dialog.dismiss()
 
         }
-
-
     }
 }
