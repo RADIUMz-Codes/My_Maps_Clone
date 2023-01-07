@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mymaps.models.Place
@@ -41,10 +42,13 @@ class MainActivity : AppCompatActivity() {
 
         fabCreateMap.setOnClickListener {
 //            Toast.makeText(this,"Clicked FAB",Toast.LENGTH_SHORT).show()
+//            caller https://medium.com/realm/startactivityforresult-is-deprecated-82888d149f5d
             val intent = Intent(this@MainActivity,CreateMapActivity::class.java)
             intent.putExtra(EXTRA_MAP_TITLE,"new map name")
             startActivityForResult(intent, REQUEST_CODE)
         }
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
